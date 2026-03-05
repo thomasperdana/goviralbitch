@@ -88,7 +88,6 @@ instaloader --version
 pip3 install --force-reinstall instaloader
 
 # Step 2: Find the actual instaloader binary location
-# Check multiple possible locations (macOS Python.org install vs pip user install vs system)
 INSTA_BIN=$(find /Library/Frameworks/Python.framework -name "instaloader" -type f 2>/dev/null | head -1)
 if [ -z "$INSTA_BIN" ]; then
   INSTA_BIN=$(find "$(python3 -m site --user-base)/bin" -name "instaloader" -type f 2>/dev/null | head -1)
@@ -97,29 +96,27 @@ if [ -z "$INSTA_BIN" ]; then
   INSTA_BIN=$(python3 -c "import shutil; print(shutil.which('instaloader') or '')" 2>/dev/null)
 fi
 
-# Step 3: Get the bin directory from the found binary
+# Step 3: Symlink to ~/.local/bin (no sudo needed, works in all shells)
 if [ -n "$INSTA_BIN" ]; then
-  BIN_DIR=$(dirname "$INSTA_BIN")
+  mkdir -p "$HOME/.local/bin"
+  ln -sf "$INSTA_BIN" "$HOME/.local/bin/instaloader"
 
-  # Step 4: Add to PATH for current session
-  export PATH="$BIN_DIR:$PATH"
-
-  # Step 5: Add to shell config if not already there
+  # Ensure ~/.local/bin is on PATH in shell config
   SHELL_RC="$HOME/.zshrc"
   [ -f "$HOME/.bashrc" ] && [ ! -f "$HOME/.zshrc" ] && SHELL_RC="$HOME/.bashrc"
-
-  if ! grep -q "$BIN_DIR" "$SHELL_RC" 2>/dev/null; then
-    echo "export PATH=\"$BIN_DIR:\$PATH\"" >> "$SHELL_RC"
+  if ! grep -q '\.local/bin' "$SHELL_RC" 2>/dev/null; then
+    echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$SHELL_RC"
   fi
 
-  # Step 6: Verify it works now
+  # Verify it works now
+  export PATH="$HOME/.local/bin:$PATH"
   instaloader --version
 fi
 ```
 
-- If the fix works, show [FIXED] with the version and note: "Added {BIN_DIR} to PATH in {SHELL_RC}. Restart your terminal or run `source {SHELL_RC}` to make it permanent."
-- If it still fails after the fix, show [NEEDS MANUAL FIX] and suggest: "Close and reopen your terminal, then run /viral:setup --check"
-- Instaloader is important for downloading competitor Instagram Reels — don't skip it
+- If the symlink works, show [FIXED] with the version
+- If it still fails, show [NEEDS MANUAL FIX]: "Run `ln -sf {INSTA_BIN} ~/.local/bin/instaloader` and ensure ~/.local/bin is on your PATH"
+- Instaloader is important for downloading competitor Instagram content — don't skip it
 
 ### Step 4: last30days Skill
 
