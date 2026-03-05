@@ -51,17 +51,27 @@ python3 -c "import reportlab; print('reportlab OK')" 2>&1
 - Track which imports succeed and which fail
 - If any FAIL: collect into a missing list
 
-### Step 2.5: Optional Python Packages (Competitor Recon)
+### Step 2.5: Competitor Recon Packages
 
 ```bash
 python3 -c "import whisper; print('whisper OK')" 2>&1
 python3 -c "import instaloader; print('instaloader OK')" 2>&1
 ```
 
-- These are OPTIONAL — only needed for competitor content scraping and transcription
-- Show as [OPTIONAL] not [FAIL] if missing
-- Note: "To transcribe competitor videos, install whisper: pip3 install openai-whisper (requires ffmpeg)"
-- Note: "To scrape Instagram competitors, install instaloader: pip3 install instaloader"
+- These power competitor research — transcribing their videos and scraping their Instagram content
+- Show as [MISSING] not [OPTIONAL] if not installed
+- **Auto-install missing packages:** If either is missing, automatically install them:
+
+```bash
+# If instaloader missing:
+pip3 install instaloader
+
+# If whisper missing:
+pip3 install openai-whisper
+```
+
+- After installing, re-check the import to confirm it worked
+- If install fails, show the error and suggest manual install
 
 ### Step 3: CLI Tools
 
@@ -71,6 +81,45 @@ instaloader --version
 ```
 
 - Check each, record version or "not found"
+- **Auto-fix instaloader CLI:** If `instaloader --version` fails (even if Python module works), automatically fix it:
+
+```bash
+# Step 1: Reinstall to ensure CLI script is created
+pip3 install --force-reinstall instaloader
+
+# Step 2: Find the actual instaloader binary location
+# Check multiple possible locations (macOS Python.org install vs pip user install vs system)
+INSTA_BIN=$(find /Library/Frameworks/Python.framework -name "instaloader" -type f 2>/dev/null | head -1)
+if [ -z "$INSTA_BIN" ]; then
+  INSTA_BIN=$(find "$(python3 -m site --user-base)/bin" -name "instaloader" -type f 2>/dev/null | head -1)
+fi
+if [ -z "$INSTA_BIN" ]; then
+  INSTA_BIN=$(python3 -c "import shutil; print(shutil.which('instaloader') or '')" 2>/dev/null)
+fi
+
+# Step 3: Get the bin directory from the found binary
+if [ -n "$INSTA_BIN" ]; then
+  BIN_DIR=$(dirname "$INSTA_BIN")
+
+  # Step 4: Add to PATH for current session
+  export PATH="$BIN_DIR:$PATH"
+
+  # Step 5: Add to shell config if not already there
+  SHELL_RC="$HOME/.zshrc"
+  [ -f "$HOME/.bashrc" ] && [ ! -f "$HOME/.zshrc" ] && SHELL_RC="$HOME/.bashrc"
+
+  if ! grep -q "$BIN_DIR" "$SHELL_RC" 2>/dev/null; then
+    echo "export PATH=\"$BIN_DIR:\$PATH\"" >> "$SHELL_RC"
+  fi
+
+  # Step 6: Verify it works now
+  instaloader --version
+fi
+```
+
+- If the fix works, show [FIXED] with the version and note: "Added {BIN_DIR} to PATH in {SHELL_RC}. Restart your terminal or run `source {SHELL_RC}` to make it permanent."
+- If it still fails after the fix, show [NEEDS MANUAL FIX] and suggest: "Close and reopen your terminal, then run /viral:setup --check"
+- Instaloader is important for downloading competitor Instagram Reels — don't skip it
 
 ### Step 4: last30days Skill
 
@@ -92,8 +141,10 @@ DEPENDENCY CHECK
 
 Python 3.8+        [PASS/FAIL]  {version}
 pip packages        [PASS/FAIL]  {missing list if any}
-yt-dlp              [PASS/FAIL]  {version}
-Instaloader         [PASS/FAIL]  {version}
+whisper             [PASS/MISSING]  {for competitor transcription}
+instaloader         [PASS/MISSING/NEEDS FIX]  {for Instagram competitor scraping}
+yt-dlp CLI          [PASS/FAIL]  {version}
+instaloader CLI     [PASS/NEEDS FIX]  {version or PATH fix instructions}
 last30days skill    [PASS/FAIL]
 
 ════════════════════════════════════════
@@ -116,11 +167,19 @@ If `--check` flag was passed, stop here. Don't proceed to Phase B.
 
 ### Step 1: Check Existing Configuration
 
-Read `.env` file if it exists:
+Read the project `.env` file if it exists:
 
 ```bash
 cat .env 2>/dev/null
 ```
+
+**Fallback: Check workspace root `.env`** — If a key is missing from the project `.env`, also check the workspace root:
+
+```bash
+cat ../../.env 2>/dev/null
+```
+
+If a key exists in the workspace `.env` but not the project `.env`, auto-copy it to the project `.env` and note: "Found {KEY_NAME} in workspace .env — copied to content-pipeline .env"
 
 Read `data/agent-brain.json` and check `platforms.api_keys_configured`.
 
@@ -184,9 +243,9 @@ Wait for user input.
 - Note: "YouTube API skipped — /viral:discover and /viral:analyze will have limited functionality"
 - Continue to next platform
 
-### Step 3: OpenAI API (Optional — Competitor Recon)
+### Step 3: OpenAI API (Competitor Research)
 
-**Required for:** Whisper transcription of competitor videos. Not needed for core pipeline.
+**Required for:** Whisper API transcription of competitor videos. Powers the competitor recon pipeline — downloading and transcribing what's working for competitors so you can reverse-engineer winning content.
 
 **Auto-detect first:** Check if the key already exists in `.env`:
 
@@ -201,11 +260,16 @@ echo "$OPENAI_API_KEY"
 Display:
 ```
 ────────────────────────────────────────
-OPENAI API (Optional)
+OPENAI API — Competitor Research
 ────────────────────────────────────────
 
-This API powers audio transcription for competitor content analysis.
-Not required for the core pipeline (discover, angle, script, analyze).
+⚠️  RECOMMENDED — This powers competitor video transcription.
+
+Without this, you can't automatically transcribe competitor
+videos to reverse-engineer their hooks, structure, and angles.
+Local Whisper works but is significantly slower and less accurate.
+
+Cost: ~$0.006/min of audio (~$0.06 for a 10-min video)
 
 Get your key:
 1. Go to https://platform.openai.com/api-keys
@@ -226,7 +290,7 @@ Wait for user input.
 - Replace existing line if present
 
 **If 'skip':**
-- Note: "OpenAI API skipped — competitor audio transcription will use local Whisper fallback (slower)"
+- Note: "⚠️ OpenAI API skipped — competitor video transcription will fall back to local Whisper (slower, less accurate). You can add it later with /viral:setup --reconfig"
 
 ### Step 4: Optional Platforms
 
@@ -236,7 +300,7 @@ Ask:
 OPTIONAL PLATFORMS
 ────────────────────────────────────────
 
-The core system works with just YouTube + OpenAI.
+The core system works best with YouTube + OpenAI.
 Additional APIs can enhance functionality in future versions.
 
 Configure any optional platform APIs? (yes / no)
