@@ -140,6 +140,16 @@ If all configured and no `--reconfig`: skip to Phase C verification.
 
 **Required for:** /viral:discover (trending topics), /viral:analyze (video metrics)
 
+**Auto-detect first:** Before prompting, check if the key already exists in `.env`:
+
+```bash
+export $(grep -v '^#' .env | xargs) 2>/dev/null
+echo "$YOUTUBE_DATA_API_KEY"
+```
+
+- If `YOUTUBE_DATA_API_KEY` is set and non-empty: show "Found YouTube API key in .env (AIza...{last 4 chars}). Testing..." and skip straight to Phase C verification for this key.
+- If not set: prompt the user:
+
 Display:
 ```
 ────────────────────────────────────────
@@ -174,17 +184,28 @@ Wait for user input.
 - Note: "YouTube API skipped — /viral:discover and /viral:analyze will have limited functionality"
 - Continue to next platform
 
-### Step 3: OpenAI API
+### Step 3: OpenAI API (Optional — Competitor Recon)
 
-**Required for:** Whisper transcription in competitor recon module
+**Required for:** Whisper transcription of competitor videos. Not needed for core pipeline.
+
+**Auto-detect first:** Check if the key already exists in `.env`:
+
+```bash
+export $(grep -v '^#' .env | xargs) 2>/dev/null
+echo "$OPENAI_API_KEY"
+```
+
+- If `OPENAI_API_KEY` is set and non-empty: show "Found OpenAI API key in .env (sk-...{last 4 chars}). Testing..." and skip to verification.
+- If not set: prompt the user:
 
 Display:
 ```
 ────────────────────────────────────────
-OPENAI API
+OPENAI API (Optional)
 ────────────────────────────────────────
 
 This API powers audio transcription for competitor content analysis.
+Not required for the core pipeline (discover, angle, script, analyze).
 
 Get your key:
 1. Go to https://platform.openai.com/api-keys
