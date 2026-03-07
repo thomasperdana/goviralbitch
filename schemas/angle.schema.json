@@ -59,6 +59,15 @@
       },
       "description": "How competitors approached this topic and how this angle differs"
     },
+    "content_job": {
+      "type": "string",
+      "enum": ["build_trust", "demonstrate_capability", "drive_action"],
+      "description": "Primary content job this angle serves (from Sam Gaudet's framework)"
+    },
+    "blocker_destroyed": {
+      "type": "string",
+      "description": "Text of the audience lie being destroyed by this angle, or empty string if no match"
+    },
     "created_at": { "type": "string", "format": "date-time" },
     "status": {
       "type": "string",

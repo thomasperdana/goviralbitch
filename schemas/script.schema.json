@@ -41,6 +41,15 @@
             "visual_direction": { "type": "string", "description": "What to show on screen during the hook" }
           }
         },
+        "intro_framework": {
+          "type": "object",
+          "description": "3 P's intro framework (Proof/Promise/Plan) for longform content — generates a strong intro after the opening hook",
+          "properties": {
+            "proof": { "type": "string", "description": "Specific result with numbers (from contrast.surprising_truth)" },
+            "promise": { "type": "string", "description": "What viewer will be able to DO (not learn)" },
+            "plan": { "type": "string", "description": "Preview of 3-5 body section titles" }
+          }
+        },
         "retention_hook": {
           "type": "object",
           "required": ["text", "timestamp_target", "technique"],

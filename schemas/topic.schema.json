@@ -61,6 +61,16 @@
         "weighted_total": {
           "type": "number",
           "description": "Total after applying learning_weights from agent brain"
+        },
+        "ccn_fit": {
+          "type": "object",
+          "description": "Core/Casual/New audience fit — must hit 2 of 3 to be saved",
+          "properties": {
+            "core": { "type": "boolean", "description": "Does this solve a $5K+ problem? (checked against icp.pain_points)" },
+            "casual": { "type": "boolean", "description": "Interesting to 2+ audience segments?" },
+            "new_audience": { "type": "boolean", "description": "Could a stranger with zero context understand the hook?" },
+            "pass": { "type": "boolean", "description": "True if 2+ of core/casual/new_audience are true" }
+          }
         }
       }
     },

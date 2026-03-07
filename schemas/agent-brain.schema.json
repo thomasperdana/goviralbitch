@@ -218,7 +218,44 @@
         },
         "avg_ctr": { "type": "number", "description": "Rolling average CTR across platforms" },
         "avg_retention_30s": { "type": "number", "description": "Rolling average 30-second retention" },
-        "total_content_analyzed": { "type": "integer", "minimum": 0, "default": 0 }
+        "total_content_analyzed": { "type": "integer", "minimum": 0, "default": 0 },
+        "view_to_follower_ratio": { "type": "number", "description": "Average views per post divided by follower count" },
+        "avg_saves": { "type": "number", "description": "Rolling average saves per post" },
+        "avg_shares": { "type": "number", "description": "Rolling average shares per post" }
+      }
+    },
+    "audience_blockers": {
+      "type": "array",
+      "description": "Lies or excuses the audience believes that hold them back — content destroys these",
+      "items": {
+        "type": "object",
+        "required": ["lie", "destruction", "pillar"],
+        "properties": {
+          "lie": { "type": "string", "description": "The false belief the audience holds" },
+          "destruction": { "type": "string", "description": "How content destroys this lie" },
+          "pillar": { "type": "string", "description": "Which content pillar addresses this blocker" }
+        }
+      }
+    },
+    "content_jobs": {
+      "type": "object",
+      "description": "Maps each pillar to its primary content job: build trust, demonstrate capability, or drive action",
+      "properties": {
+        "build_trust": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Pillars whose primary job is building trust with the audience"
+        },
+        "demonstrate_capability": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Pillars whose primary job is demonstrating what you can do"
+        },
+        "drive_action": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Pillars whose primary job is getting viewers to take action"
+        }
       }
     },
     "metadata": {

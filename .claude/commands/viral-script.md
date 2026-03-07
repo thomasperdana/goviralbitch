@@ -185,6 +185,20 @@ For every hook generated, compute:
    - This lets the system learn which patterns work for this creator over time
    - If all preferences are 0 (new brain), apply no boost — show all patterns equally
 
+6. **3 C's Hook Quality Check (shortform hooks only):**
+   For hooks targeting youtube_shorts, instagram_reels, or tiktok, evaluate against Context + Contrarian + Intrigue:
+   - **Context**: Does the hook ground the viewer in a recognizable situation or world? (not abstract)
+   - **Contrarian**: Does the hook challenge what they currently believe or do?
+   - **Intrigue**: Does the hook create an open loop or unanswered question?
+
+   Scoring adjustment:
+   - All 3 present: **+0.5** to composite score
+   - Only 1 present: **-0.5** to composite score
+   - 0 present: Flag in output: "Weak hook — missing 3 C's" and apply **-0.5**
+   - 2 present: No adjustment (neutral)
+
+   This check does NOT apply to youtube_longform or linkedin hooks.
+
 ---
 
 ## Phase C: Platform Formatting
@@ -268,7 +282,7 @@ Keep all hooks? [Y/n] or type numbers to drop (e.g., "drop 3, 5")
 
 ### Step 1: Check for Relevant Swipe Hooks
 
-Scan all files in `data/recon/swipe/` for swipe hook entries relevant to the current angle.
+Scan all files in `data/recon/swipe/` for swipe hook entries relevant to the current angle. Also scan `data/hooks/hook-repo.jsonl` for proven self-hooks (entries where `competitor` is `"charlieautomates (self)"`) — these are Charles's own top-performing hooks with real engagement data and should be weighted as high-confidence structural references.
 
 **Relevance matching logic:**
 
@@ -297,6 +311,7 @@ For each relevant swipe entry (max 3 to avoid output bloat), generate ONE swipe-
 - NEVER copy or closely paraphrase the competitor's hook text
 - The generated hook must express CHARLES'S angle and contrast, in his voice/tone from `identity.tone`
 - Tag each generated hook with which swipe entry inspired it
+- **Self-hooks** (from hook-repo.jsonl with `competitor: "charlieautomates (self)"`) are Charles's own proven winners — reuse the exact structural formula (e.g., "If you're using X without Y, you're [consequence]") but with NEW topic content from the current angle. These have real engagement data backing them — prioritize their patterns when scores are close.
 
 **Generation approach per swipe entry:**
 
@@ -324,7 +339,7 @@ Display as a SEPARATE labeled section, appended BELOW the Phase D output:
 ```
 ═══════════════════════════════════════════════════
 HOOKS (Swipe-Influenced)
-Inspired by competitor hooks in your swipe file
+Inspired by proven hooks in your swipe file
 ═══════════════════════════════════════════════════
 
 ───────────────────────────────────────────────────
@@ -346,6 +361,7 @@ Keep swipe-influenced hooks? [Y/n] or type numbers to drop
 
 **Display rules:**
 - "Inspired By" column shows ONLY: `{Competitor Name} — '{first 6-8 words}'...` — never the full competitor hook
+- For self-hooks (competitor = "charlieautomates (self)"), display as: `YOUR PROVEN — '{first 6-8 words}...' [{engagement_rate}% eng]` — the engagement rate signals real data backing
 - Swipe-influenced hooks display with the SAME scoring columns as originals
 - The user can drop swipe hooks independently from original hooks
 
@@ -474,6 +490,27 @@ From the youtube_longform hooks generated in Phase D, select the **top-scoring**
   - pov_as_advice → talking head, authoritative posture
   - vulnerable_confession → talking head, intimate/close framing
   - pattern_interrupt → mid-action or unexpected visual
+
+### Step 1b: Generate 3 P's Intro Framework (Longform Only)
+
+After the opening hook, generate the `intro_framework` block using the **3 P's (Proof / Promise / Plan)**:
+
+- **Proof**: A specific result with numbers, drawn from `contrast.surprising_truth`. Must be concrete and credible.
+  - Example: "I replaced 3 full-time roles with AI agents that cost $0.50/day"
+- **Promise**: What the viewer will be able to **DO** after watching (not just learn). Action-oriented.
+  - Example: "By the end of this video, you'll be able to set up your own AI agent team"
+- **Plan**: Preview of the 3-5 body section titles, so the viewer knows the roadmap.
+  - Example: "We'll cover: why hiring is broken, how AI agents work, the exact setup I use, and how to deploy yours today"
+
+Set the retention hook `technique` to `"three_ps"` when using this framework. The retention hook `text` should be a natural spoken version combining Proof + Promise + Plan — conversational, not bullet points.
+
+```json
+"intro_framework": {
+  "proof": "I replaced 3 full-time roles with AI agents at $0.50/day",
+  "promise": "You'll be able to set up your own AI agent team by the end of this video",
+  "plan": "Why hiring is broken → How AI agents work → My exact setup → Deploy yours today"
+}
+```
 
 ### Step 2: Generate Retention Hook
 
@@ -788,16 +825,20 @@ Only generate scripts for platforms the creator actually posts on. If a platform
 
 ### Step 2: Generate Beat-Based Scripts (YouTube Shorts / Instagram Reels / TikTok)
 
-For each video-based shortform platform in the creator's posting list, generate a beat-based script (5-8 beats, 15-60s total):
+For each video-based shortform platform in the creator's posting list, generate a beat-based script (5-8 beats, 15-60s total).
 
-| Beat | Time | Purpose | Requirements |
-|------|------|---------|-------------|
-| 1 | 0-3s | HOOK | Top-scoring hook for this platform from Phase D. visual_cue required. |
-| 2 | 3-8s | CONTEXT | One sentence setting up the problem/contrast. Visual: relevant B-roll or text overlay. |
-| 3-5 | 8-25s | DELIVER | 2-3 beats delivering the core value. Each beat: action (what to say), visual (what to show), text_overlay (on-screen text reinforcing the point). |
-| 6 | 25-30s | PROOF | Quick proof element (show result, stat, or before/after). Visual direction matched to proof_method. |
-| 7 | 30-45s | CTA | Platform-appropriate CTA from cta-templates.json. |
-| 8 | 45-60s | LOOP (optional) | Callback to hook or visual loop point for replay value. |
+Use the **HEIL framework** (Hook / Explain / Illustrate / Lesson) as the conceptual backbone for beats:
+
+| Beat | Time | HEIL Label | Purpose | Requirements |
+|------|------|------------|---------|-------------|
+| 1 | 0-3s | **H: HOOK** | Top-scoring hook for this platform from Phase D. visual_cue required. | Grab attention — pattern interrupt, bold claim, or surprising visual. |
+| 2 | 3-8s | **E: EXPLAIN** | One sentence setting up the problem/contrast. No jargon — assume the viewer has NEVER heard of this topic before. | Visual: relevant B-roll or text overlay. |
+| 3-5 | 8-25s | **I: ILLUSTRATE** | 2-3 beats delivering the core value with proof. Use an analogy from the VIEWER'S world, not the creator's. Each beat: action, visual, text_overlay. | Make it tangible — "It's like having a full-time employee who never sleeps" not "It uses agentic AI workflows." |
+| 6 | 25-30s | **L: LESSON** | Specific actionable takeaway the viewer can use TODAY. Not vague inspiration — one concrete step. | "Open Claude Code and type /viral:discover — that's it, you're running competitor research." |
+| 7 | 30-45s | CTA | Platform-appropriate CTA from cta-templates.json. | Unchanged. |
+| 8 | 45-60s | LOOP (optional) | Callback to hook or visual loop point for replay value. | Unchanged. |
+
+**HEIL is a conceptual guide, not a rigid format.** The output format (beats array, timestamps, actions, visuals) stays identical to the standard beat structure. HEIL just ensures each beat serves its purpose clearly.
 
 **Platform-specific adjustments:**
 

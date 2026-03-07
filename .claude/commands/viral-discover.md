@@ -17,7 +17,7 @@ Read the agent brain to understand who the creator is:
 **Extract these fields:**
 - `identity` — who the creator is, niche, tone
 - `competitors[]` — competitor list with platform + handle
-- `icp.segments[]`, `icp.pain_points[]`, `icp.goals[]` — scoring context
+- `icp.segments[]`, `icp.pain_points[]`, `icp.goals[]` — scoring context + CCN fit evaluation
 - `pillars[]` — content themes + keywords
 - `learning_weights` — scoring multipliers
 - `platforms.api_keys_configured` — available APIs
@@ -383,8 +383,24 @@ weighted_total = (icp_relevance × learning_weights.icp_relevance) +
 - Topics validated by competitor performance (>50K views) get **+2 content_gap** bonus
 - Topics from top 3 competitor pieces get **+1 proof_potential** bonus
 
+### CCN Fit (Core / Casual / New Audience):
+
+After calculating scores, evaluate each topic's audience fit:
+
+- **CORE**: Does this solve a $5K+ problem? Check against `icp.pain_points` — if the topic directly addresses a pain point that costs the audience real money/time, it's core.
+- **CASUAL**: Interesting to 2+ audience segments from `icp.segments[]`? If only one segment would care, it's not casual.
+- **NEW**: Could a stranger with zero AI context understand the hook? If it requires niche jargon or prior knowledge, it fails new.
+
+**Rule:** Must hit 2 of 3 to be saved. Topics hitting only 1 are shown in the summary but excluded from JSONL output with a note: `[CCN: {which one} only — too niche]` or `[CCN: {which one} only — too broad]`.
+
+Add `ccn_fit` object to each topic's `scoring` in JSONL output:
+```json
+"ccn_fit": { "core": true, "casual": true, "new_audience": false, "pass": true }
+```
+
 ### Selection:
 - Deduplicate: merge same topic from multiple sources
+- CCN fit: must pass (2 of 3) to be saved — failed topics displayed but not written to JSONL
 - Minimum threshold: weighted_total ≥ 20 (out of 40)
 - If fewer than 5 topics meet threshold, lower to 15 and note it
 - Target: 10-20 scored topics per run

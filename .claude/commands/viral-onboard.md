@@ -166,6 +166,33 @@ For any URLs they don't have yet, store as empty string `""`.
 
 ---
 
+### Section 8: Audience Blockers
+
+**Open with context:** *"What lies or excuses does your audience believe that hold them back? These are the false beliefs your content exists to destroy. For example: 'I need to hire to scale' — and your content shows AI agents can replace repeatable roles."*
+
+Ask about:
+- **What are 3-5 lies your audience tells themselves?** What beliefs keep them stuck? → `audience_blockers[].lie`
+- For each lie: **How does your content destroy that lie?** What proof or truth do you show? → `audience_blockers[].destruction`
+- For each lie: **Which pillar does this fall under?** → `audience_blockers[].pillar`
+
+→ Store as `audience_blockers[]` array
+
+---
+
+### Section 9: Content Jobs
+
+**Open with context:** *"Each content pillar has a primary job — building trust with your audience, demonstrating what you're capable of, or driving them to take action. Let's map each one."*
+
+For each pillar from Section 3, ask:
+- **Is {pillar name} primarily about building trust, demonstrating capability, or driving action?**
+  - **Build Trust**: Content that shows you understand the audience's world (thought leadership, contrarian takes, vulnerability)
+  - **Demonstrate Capability**: Content that shows what you can DO (tutorials, demos, walkthroughs, before/after)
+  - **Drive Action**: Content designed to get viewers to take a specific next step (free trial, community join, DM)
+
+→ Store as `content_jobs` object with `build_trust[]`, `demonstrate_capability[]`, `drive_action[]` arrays of pillar names
+
+---
+
 ## Phase C: Write and Confirm
 
 After collecting all 7 sections, synthesize everything into the `agent-brain.json` structure.
@@ -200,7 +227,9 @@ After collecting all 7 sections, synthesize everything into the `agent-brain.jso
    - `platforms.research` must have at least 1 entry
    - `platforms.posting` must have at least 1 entry
 
-4. **Write the complete brain** to `data/agent-brain.json`
+4. **Write `audience_blockers` and `content_jobs`** fields alongside the core 7 sections
+
+5. **Write the complete brain** to `data/agent-brain.json`
 
 ### After writing, show a formatted summary:
 
@@ -228,6 +257,12 @@ Cadence: {shorts_per_day} shorts/day ({shorts_days}), {longform_per_week} long-f
 
 Monetization: {primary_funnel}
 Default CTA: {default_cta}
+
+Audience Blockers: {N} lies mapped to content destruction
+Content Jobs:
+  Build Trust: {pillar names}
+  Demonstrate Capability: {pillar names}
+  Drive Action: {pillar names or "—"}
 
 ════════════════════════════════════════
 ```

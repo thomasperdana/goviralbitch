@@ -22,6 +22,8 @@ Read the agent brain to understand the creator's identity, audience, and monetiz
 - `pillars[]` — content themes + keywords
 - `platforms.posting[]` — where this creator publishes (determines which platform angles to generate)
 - `monetization` — primary_funnel, secondary_funnels, cta_strategy (default_cta, community_url, website_url)
+- `audience_blockers[]` — lies the audience believes (for blocker destruction matching)
+- `content_jobs` — pillar-to-job mapping (build_trust, demonstrate_capability, drive_action)
 - `competitors[]` — competitor handles + platforms (for differentiation)
 
 **If the brain is empty or `identity.name` is blank:**
@@ -193,6 +195,21 @@ For **linkedin** (if in posting platforms):
   4. **case study** — Real client/project story
   5. **expert testimony** — Quote from authority
 
+**Step 5b: Content Job**
+- Check the pillar's default job from `content_jobs` in agent brain (e.g., if pillar is "AI Automation" and it's listed under `content_jobs.build_trust`, the default job is `build_trust`)
+- Override if `proof_method` suggests a different job:
+  - `demo` or `before_after` → `demonstrate_capability`
+  - `case_study` or `expert_testimony` → `build_trust`
+  - If the angle's CTA is a direct conversion action → `drive_action`
+- Set `content_job` on the angle object
+
+**Step 5c: Blocker Destruction**
+- Load `audience_blockers` from agent brain
+- Compare `contrast.surprising_truth` against each `audience_blockers[].lie`
+- If the surprising truth directly counters a lie, set `blocker_destroyed` to the text of that lie
+- If no match, set `blocker_destroyed` to empty string `""`
+- Matching is semantic, not exact — "AI agents replace repeatable roles" matches a truth about replacing hires with AI
+
 **Step 6: Set Funnel Direction**
 - `cta_type`: Map from `monetization.cta_strategy.default_cta`:
   - "Join the Skool community" → `community`
@@ -268,6 +285,7 @@ Contrast: {strength}
 
 Target: {audience segment} | Pain: {pain addressed}
 Proof: {method} — {brief description of what to show}
+Job: {content_job} | Blocker: {blocker_destroyed or "—"}
 
 CTA: {cta_copy}
      → {cta_type} | Monetization: {monetization_tie}
@@ -285,6 +303,7 @@ Contrast: {strength}
 
 Visual: {what to show on screen}
 Target: {audience segment} | Pain: {pain addressed}
+Job: {content_job} | Blocker: {blocker_destroyed or "—"}
 
 CTA: {cta_copy}
 
@@ -299,6 +318,7 @@ Contrast: {strength}
 Story angle: {personal connection}
 Engagement Q: "{closing question}"
 Target: {audience segment}
+Job: {content_job} | Blocker: {blocker_destroyed or "—"}
 
 CTA: {cta_copy}
 
@@ -351,6 +371,8 @@ Save all kept angles to `data/angles.jsonl`:
   },
   "competitor_angles": [],
   "created_at": "2026-03-04T14:30:00Z",
+  "content_job": "build_trust",
+  "blocker_destroyed": "I need to hire to scale",
   "status": "draft",
   "notes": ""
 }
