@@ -77,7 +77,6 @@ git clone https://github.com/charlesdove977/goviralbitch.git && cd goviralbitch 
 - **Format-based angles** — 5 angles per format (longform, shortform, LinkedIn) = 15 takes per topic
 - **PDF lead magnet generation** from any script
 - **Discovery**: YouTube + Instagram live now — TikTok, LinkedIn, Reddit, X, Hacker News + more coming
-- **Automated cron** — daily discovery + weekly analysis scripts ready to install (`scripts/install-crons.sh`)
 - 🚧 **Idea board** with pipeline funnel and content repurposing
 - 🚧 **Content calendar** with configurable cadence engine
 - **Monetization coaching** baked into every output
@@ -101,11 +100,10 @@ goviralbitch/
 │   ├── calendar.jsonl      # Content calendar
 │   └── cta-templates.json  # CTA template library
 ├── schemas/                # JSON Schema draft-07 contracts
-├── scripts/                # Bash + Python utilities
+├── scripts/                # Bash + Python utilities (incl. generate-pdf.py)
 ├── recon/                  # Competitor analysis module
 ├── scoring/                # Topic scoring engine
 ├── skills/last30days/      # Bundled discovery skill
-├── cron/                   # macOS launchd plists
 └── docs/                   # Cross-platform documentation
 ```
 
