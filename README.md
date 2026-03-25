@@ -2,7 +2,7 @@
   <img src="assets/gvb-logo.svg" alt="GVB" width="320" />
 </p>
 
-<h1 align="center">GO VIRAL BITCH</h1>
+<h1 align="center">GO VIRAL BRO</h1>
 
 <p align="center">
   A trainable social media coaching system for Claude Code.<br/>
@@ -19,7 +19,7 @@
 <br/>
 
 ```bash
-git clone https://github.com/charlesdove977/goviralbitch.git && cd goviralbitch && bash scripts/init-viral-command.sh
+git clone https://github.com/charlesdove977/goviralbro.git && cd goviralbro && bash scripts/init-viral-command.sh
 ```
 
 <p align="center">Works on Mac, Windows (WSL), and Linux.</p>
@@ -82,7 +82,7 @@ git clone https://github.com/charlesdove977/goviralbitch.git && cd goviralbitch 
 ## Architecture
 
 ```
-goviralbitch/
+goviralbro/
 ├── .claude/commands/       # 7 pipeline commands (viral-*.md)
 ├── data/                   # JSONL data stores + agent brain
 │   ├── agent-brain.json    # Evolving system memory
